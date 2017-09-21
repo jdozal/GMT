@@ -1,0 +1,84 @@
+#!/bin/csh
+ps="mendocino5.ps"
+
+# Cut grid to selected area
+gmt grdcut topo30.grd -R-130/-116/35.5/45 -Gmendocino_topo.grd
+
+
+# Make Color Palette Table
+gmt grd2cpt mendocino_topo.grd -Crelief -E -Qi > mendocino_cpt.cpt
+
+# Crate shade file (gradient)
+gmt grdgradient mendocino_topo.grd -A0 -fg -Nt -Gmendocino_shade.grd 
+
+
+# Base map
+gmt pscoast -R-130/-116/35.5/45 -JM6i -P -Na -Wfaint -K -Yc -Ba2/a2:."Mendocino Triple Junction": > $ps
+
+# Add topography layer 
+gmt grdimage mendocino_topo.grd -R -K -J -Cmendocino_cpt.cpt -Imendocino_shade.grd -O >> $ps
+
+# New file for volcanoes
+awk  -F'\t' '{print $6, $5}' volcanoes.txt > volcano_list.txt
+
+# Faults 
+gmt psxy -J -R Historic.gmt -W1p,red -O -K -Sf0.25/1p -Gred >> $ps
+gmt psxy -J -R Holocene.gmt -W1p,orange -O -K -Sf0.25/1p -Gorange >> $ps
+gmt psxy -J -R LateQuaternary.gmt -W1p,green -O -K -Sf0.25/1p -Ggreen >> $ps
+gmt psxy -J -R Mid_Late.gmt -W1p,blue -O -K -Sf0.25/1p -Gblue >> $ps
+gmt psxy -J -R Quaternary.gmt -W1p,black -O -K -Sf0.25/1p -Gblack >> $ps
+
+# Plot volcanoes 
+gmt psxy volcano_list.txt -R -J -St0.4 -W0.5,black -Gred -O -K >> $ps
+
+# Add scale (Elevation)
+gmt psscale -Cmendocino_cpt.cpt -DjBC+w4i+o-2.5c/-3c+h -Bx+l"Elevation (m)" -Ba -K -R -J -O >> $ps
+
+# Locate Stations 
+gmt psxy offtoonshore_shots.txt -R -J -i3,2 -W2p,lightblue -Sf0.25/2p -O -K >> $ps
+gmt psxy wa_6_onshore_shots.txt -R -J -i2,1 -W2p,lightblue -Sf0.25/2p -O -K >> $ps
+gmt psxy OBS_coordinates.txt -R -J -i1,2 -St0.3 -W0.5,black -Gwhite -O -K >> $ps
+gmt psxy wa_6_onshore_shots.txt -R -J -i2,1 -Sa0.3 -W0.5,black -Gwhite -O -K >> $ps
+
+
+# Add Legend 
+gmt pslegend -R -J -O -K -DjBC+w2i+o6/-4.5c << EOF >> $ps
+S 0.1i - 0.15i red 1p,red 0.3i < 150 years
+S 0.1i - 0.15i orange 1p,orange 0.3i < 15,000 years
+S 0.1i - 0.15i green 1p,green 0.3i < 130,000 years
+S 0.1i - 0.15i blue 1p,blue 0.3i < 750,000 years
+S 0.1i - 0.15i black 1p,black 0.3i < 1.6 million years
+S 0.1i t 0.15i red 0.5,black 0.3i Volcano
+EOF
+
+gmt pslegend -R -K -J -O -F+gwhite+p1p,black -DJBC+o-5.5/-0.7i+w1.5i << EOF >> $ps
+S 0.1i t 0.15i white 1p,black 0.25i OBS 
+S 0.1i a 0.15i white 1p,black 0.25i Onshore Shots
+S 0.1i - 0.15i black 2p,lightblue 0.25i Line 6
+EOF
+
+# Insert map
+gmt pscoast -R-140/-105/27/52 -JM3.81 -Na,thin -Ggrey -Swhite -Wfaint -O -K -Ba10 -Bwsne -X11.1 -Y9.5 >> $ps
+gmt psxy -R -JM -O -W1.5,black << EOF >> $ps
+-130 35.5
+-130 45
+-115 45
+-115 35.5
+-130 35.5
+EOF
+
+
+#gmt psbasemap -JM6i -Yc -R-130/-116/35.5/45 -Ba1/a1:."Mendocino Triple Junction": -P -K > $ps
+
+
+# Plate boundaries 
+#gmt psxy -J -R platesdata.txt -W1.5p,black -t50 -O -K -Sf0.25/3p -Gblack >> $ps
+
+# Focal Mechanisms 
+#gmt psmeca focalmeca.txt -Sz0.3 -h1 -L -R -J -O >> $ps
+
+# Add plate labels 
+#gmt pstext plates_names.txt -R -J -K -O  >> $ps
+
+# Convert to PDF
+gmt psconvert -Tf -Fmendocino5 $ps

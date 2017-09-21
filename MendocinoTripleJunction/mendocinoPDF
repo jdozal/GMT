@@ -1,0 +1,15 @@
+#!/bin/csh
+sh mendocino2
+sh mendocino3
+sh mendocino4
+sh mendocino5
+
+# Convert all the maps into one PDF
+gmt psconvert -TF -FMTJ mendocino2.ps mendocino5.ps mendocino4.ps mendocino3.ps
+
+gmt psconvert -Tj mendocino2.ps
+gmt psconvert -Tj mendocino3.ps
+gmt psconvert -Tj mendocino4.ps
+gmt psconvert -Tj mendocino5.ps
+
+open MTJ.pdf

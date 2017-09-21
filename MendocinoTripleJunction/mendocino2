@@ -1,0 +1,94 @@
+#!/bin/csh
+ps="mendocino2.ps"
+r="-128/-120.5/38/43"
+
+# Base map
+gmt pscoast -R$r -JM6i -P -Y3i -S0/40/80 -Ggrey -Na,thick -Ba1/a1:."Mendocino Triple Junction": -K -Slightblue> $ps
+
+# New file for earthquake location and magnitude
+awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' quakes.txt > quakes_edit.txt
+
+# New file for stations 
+awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
+
+# Create cpt for earhquakes depth
+#gmt makecpt -Cseis -E5 -i2 quakes_edit.txt > depth.cpt
+
+# Locate earthquakes (Line, Fill)
+gmt psxy -R -J -O -K quakes_edit.txt -t60 -Scc -L -Cdepth.cpt >> $ps
+gmt psxy -R -J -O -K quakes_edit.txt -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $ps
+#gmt psxy quakes_edit.txt -R -J -Scc -W1.0,black -O -K >> $ps
+
+# Focal Mechanisms 
+gmt psmeca focalmeca.txt -Sz0.2 -h1 -L -R -J -O -K >> $ps
+
+# Locate Recievers 
+gmt psxy -R -J -O -K wa6.receivers -i1,2 -Sc0.4 -L -Ggreen >> $ps
+
+# Locate Stations 
+gmt psxy OBS_coordinates.txt -R -J -i1,2 -St0.4 -W1.0,blue -Gblue -O -K >> $ps
+gmt psxy wa_6_onshore_shots.txt -R -J -i2,1 -Sa0.4 -W1.0,red -Gred -O -K >> $ps
+gmt psxy offtoonshore_shots.txt -R -J -i3,2 -W2p,black -Sf0.25/3p -O -K >> $ps
+gmt psxy wa_6_onshore_shots.txt -R -J -i2,1 -W2p,black -Sf0.25/3p -O -K >> $ps
+
+# Add plate labels 
+gmt pstext plates_names.txt -R -J -K -O  >> $ps
+
+# Plate boundaries 
+gmt psxy -J -R platesdata.txt -W2p,black -O -K -t50 -Sf0.25/3p -Gred >> $ps
+
+# Faults 
+gmt psxy -J -R faults.txt -W2p,red -O -K -Sf0.25/3p -Gred >> $ps
+
+# Focal Mechanisms Legend 
+gmt pslegend << END -R -J -DJBC+o-0.6/-0.95i+w1.3i -F+gwhite+p1p,black -K -O -P >> $ps
+S 0.25i c 1p - white 0.35i Normal 
+G 0.11i
+S 0.25i c 1p - white 0.35i Thrust
+G 0.11i
+S 0.25i c 1p - white 0.35i Strike-Slip
+END
+
+gmt psmeca << END -R -J -Sa.2i -O -K -P >> $ps
+-125.1 38.76 0.0 0 90 180 5 0 0
+-125.1 38.47 0.0 0 45 90 5 0 0
+-125.1 38.20 0.0 0 45 -90 5 0 0
+END
+
+# Add scale (Magnitude) and stations legend 
+gmt pslegend -R -J -O -K -DJBC+o-6.2/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+H 12 - Magnitude
+G 0.1i
+S 0.2i c 0.14 - black 0.35i M = 2
+G 0.1i
+S 0.2i c 0.28 - black 0.35i M = 4
+G 0.1i
+S 0.2i c 0.42 - black 0.35i M = 6
+G 0.1i
+S 0.2i c 0.56 - black 0.35i M = 8
+G 0.1i
+EOF
+
+gmt pslegend -R -J -O -K -DJBC+o-3.6/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+H 12 - Depth 
+G 0.1i
+S 0.2i c 0.30 228/123/0 black 0.32i 0 m
+G 0.1i
+S 0.2i c 0.30 255/201.88/0 black 0.32i 50 m
+G 0.1i
+S 0.2i c 0.30 151.88/255/18.75 black 0.32i 100 m
+G 0.1i
+S 0.2i c 0.30 0/100/236.87 black 0.32i 150 m
+G 0.1i
+EOF
+
+gmt pslegend -R -J -O -F+gwhite+p1p,black -DjTR+o0.1c+w1.5i+l1.2 << EOF >> $ps
+S 0.1i t 0.15i blue 0.25p,blue 0.25i OBS 
+S 0.1i a 0.15i red 0.25p,red 0.25i Onshore Shots
+EOF
+
+#gmt pslegend -DJBC+o0/0.4i+w7i/1.7i -R -J -O -F+p+gwhite neis.legend  >> $ps
+
+
+# Convert to PDF
+gmt psconvert -Tg -Fmendocino2 $ps

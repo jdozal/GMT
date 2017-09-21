@@ -1,0 +1,43 @@
+#!/bin/csh
+
+ps="mendocino1.ps"
+r="-128/-120.5/38/43"
+
+# Cut grid to selected area
+gmt grdcut topo30.grd -R$r -Gmendocino_topo.grd
+
+# Make Color Palette Table
+gmt grd2cpt mendocino_topo.grd -Crelief -E -Qi > mendocino_cpt.cpt
+
+# Crate shade ps (gradient)
+gmt grdgradient mendocino_topo.grd -A0 -fg -Nt -Gmendocino_shade.grd 
+
+# Base map
+gmt psbasemap -JM6i -Yc -R$r -Ba1/a1:."Mendocino Triple Junction": -P -K > $ps
+
+# Add topography layer 
+gmt grdimage mendocino_topo.grd -R -J -Cmendocino_cpt.cpt -Imendocino_shade.grd -K -O >> $ps
+
+# Plate boundaries 
+gmt psxy -J -R platesdata.txt -W1.5p,black -t50 -O -K -Sf0.25/3p -Gblack >> $ps
+
+# Locate Stations 
+gmt psxy OBS_coordinates.txt -R -J -i1,2 -St0.4 -W1.0,blue -Gblue -O -K >> $ps
+gmt psxy wa_6_onshore_shots.txt -R -J -i2,1 -Sa0.4 -W1.0,red -Gred -O -K >> $ps
+gmt psxy offtoonshore_shots.txt -R -J -i3,2 -W2p,black -Sf0.25/3p -O -K >> $ps
+gmt psxy wa_6_onshore_shots.txt -R -J -i2,1 -W2p,black -Sf0.25/3p -O -K >> $ps
+
+# Focal Mechanisms 
+#gmt psmeca focalmeca.txt -Sz0.3 -h1 -L -R -J -O >> $ps
+
+# Add plate labels 
+gmt pstext plates_names.txt -R -J -K -O  >> $ps
+
+gmt pslegend -R -J -O -DjBC+w2i+o0/-2.5c << EOF >> $ps
+S 0.1i t 0.15i blue 0.25p,blue 0.3i OBS 
+S 0.1i a 0.15i red 0.25p,red 0.3i Onshore Receivers 
+EOF
+
+# Convert to PDF
+gmt psconvert -Tf -Fmendocino1 $ps
+

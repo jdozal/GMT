@@ -1,0 +1,36 @@
+1202-09-	Bachelor	United States	US-Oregon	43.979	-121.688	2763	Stratovolcano	Tephrochronology	D7
+1202-06-	Belknap	United States	US-Oregon	44.285	-121.841	2095	Shield volcano	Radiocarbon	D6
+1203-04-	Big Cave	United States	US-California	40.955	-121.365	1259	Shield volcano	Holocene	Unknown
+1202-03-	Blue Lake Crater	United States	US-Oregon	44.42	-121.77	1230	Maar	Radiocarbon	D7
+1203-03-	Brushy Butte	United States	US-California	41.178	-121.443	1174	Shield volcano	Holocene	Unknown
+1202-15-	Cinnamon Butte	United States	US-Oregon	43.241	-122.108	1956	Cinder cone	Holocene	Unknown
+1203-10-	Clear Lake	United States	US-California	38.97	-122.77	1439	Volcanic field	Holocene	U
+1203-18-	Coso Volc Field	United States	US-California	36.03	-117.82	2400	Lava dome	Holocene	Unknown
+1202-16-	Crater Lake	United States	US-Oregon	42.93	-122.12	2487	Caldera	Radiocarbon	D7
+1202-10-	Davis Lake	United States	US-Oregon	43.57	-121.82	2163	Volcanic field	Radiocarbon	D7
+1202-12-	Devils Garden	United States	US-Oregon	43.512	-120.861	1698	Volcanic field	Holocene	Unknown
+1202-17-	Diamond Craters	United States	US-Oregon	43.1	-118.75	1435	Volcanic field	Holocene	Unknown
+1203-09-	Eagle Lake Field	United States	US-California	40.63	-120.83	1652	Fissure vent	Holocene	Unknown
+1301-04-	Escanaba Segment	Pacific Ocean	Pacific-NE	40.983	-127.5	-1700	Submarine volcano	Uranium-series	D7
+1202-14-	Four Craters Lava Field	United States	US-Oregon	43.361	-120.669	1501	Volcanic field	Holocene	Unknown
+1203-17-	Golden Trout Creek	United States	US-California	36.358	-118.32	2886	Volcanic field	Tephrochronology	D7
+1203-13-	Inyo Craters	United States	US-California	37.692	-119.02	2629	Lava dome	Radiocarbon	D6
+1202-02-	Jefferson	United States	US-Oregon	44.692	-121.8	3199	Stratovolcano	Varve Count	D6
+1202-19-	Jordan Craters	United States	US-Oregon	43.03	-117.42	1473	Volcanic field	Holocene	U
+1203-08-	Lassen Volc Center	United States	US-California	40.492	-121.508	3187	Stratovolcano	Historical	D2
+1203-02-	Medicine Lake	United States	US-California	41.58	-121.57	2412	Shield volcano	Radiocarbon	D6
+1203-12-	Mono Craters	United States	US-California	37.88	-119	2796	Lava dome	Radiocarbon	D6
+1203-11-	Mono Lake Volc Field	United States	US-California	38	-119.03	2121	Cinder cone	Tephrochronology	D4
+1202-11-	Newberry Volcano	United States	US-Oregon	43.722	-121.229	2434	Shield volcano	Radiocarbon	D6
+1301-021	North Gorda Ridge	Pacific Ocean	Pacific-NE	42.67	-126.78	-3000	Submarine volcano	Historical	D1
+1301-031	North Gorda Ridge	Pacific Ocean	Pacific-NE	42.667	-126.783	-3000	Submarine volcano	Historical	D2
+1202-07-	North Sister Field	United States	US-Oregon	44.17	-121.77	3074	Complex volcano	Radiocarbon	D6
+1203-15-	Red Cones	United States	US-California	37.58	-119.05	2748	Cinder cone	Holocene	U
+1202-04-	Sand Mountain Field	United States	US-Oregon	44.38	-121.93	1664	Cinder cone	Radiocarbon	D7
+1203-01-	Shasta	United States	US-California	41.42	-122.2	4317	Stratovolcano	Historical	D4
+1202-08-	South Sister	United States	US-Oregon	44.1	-121.77	3157	Complex volcano	Radiocarbon	D7
+1202-13-	Squaw Ridge Field	United States	US-Oregon	43.472	-120.754	1711	Volcanic field	Holocene	Unknown
+1206-01-	Steamboat Springs	United States	US-Nevada	39.375	-119.72	1415	Lava dome	Pleistocene-Fumarol	Q
+1203-06-	Tumble Buttes	United States	US-California	40.68	-121.55	2191	Cinder cone	Holocene	Unknown
+1203-05-	Twin Buttes	United States	US-California	40.78	-121.6	1631	Cinder cone	Holocene	Unknown
+1203-16-	Ubehebe Craters	United States	US-California	37.02	-117.45	752	Maar	Holocene	U
