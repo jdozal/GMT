@@ -1,36 +1,32 @@
 #!/bin/csh
 
 ps="nepal.ps"
-r="-128/-120.5/38/43"
+r="79/89/25/31"
 
 # Cut grid to selected area
-gmt grdcut /Users/jdozal/Desktop/topography -R$r -Gnepal_topo.grd
+gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -Gnepal_topo.grd
 
 # Make Color Palette Table
-#gmt grd2cpt mendocino_topo.grd -Crelief -E -Qi > mendocino_cpt.cpt
+gmt grd2cpt nepal_topo.grd -Crelief -E -Qi > nepal_cpt.cpt
 
 # Crate shade ps (gradient)
-#gmt grdgradient mendocino_topo.grd -A0 -fg -Nt -Gmendocino_shade.grd 
+gmt grdgradient nepal_topo.grd -A0 -fg -Nt -Gnepal_shade.grd 
 
 # Base map
-#gmt psbasemap -JM6i -Yc -R$r -Ba1/a1:."Mendocino Triple Junction": -P -K > $ps
+gmt pscoast -JM6i -Na -Yc -K -R$r -Ba1/a1 -P > $ps
 
 # Add topography layer 
-#gmt grdimage mendocino_topo.grd -R -J -Cmendocino_cpt.cpt -Imendocino_shade.grd -K -O >> $ps
+gmt grdimage nepal_topo.grd -R -J -K -Crelief -Inepal_shade.grd -O >> $ps
 
-# Plate boundaries 
-#gmt psxy -J -R platesdata.txt -W1.5p,black -t50 -O -K -Sf0.25/3p -Gblack >> $ps
+# Make Color Palette Table
+gmt grd2cpt aftershock_dipslip.grd -Chot -E -Qi > ad_cpt.cpt
 
-# Focal Mechanisms 
-#gmt psmeca focalmeca.txt -Sz0.3 -h1 -L -R -J -O >> $ps
+# Crate shade ps (gradient)
+gmt grdgradient aftershock_dipslip.grd -A0 -fg -Nt -Gad_shade.grd 
 
-# Add plate labels 
-#gmt pstext plates_names.txt -R -J -K -O  >> $ps
+# Add layer
+gmt grdimage aftershock_dipslip.grd -R -J -Q -Chot -Iad_shade.grd -O >> $ps
 
-#gmt pslegend -R -J -O -DjBC+w2i+o0/-2.5c << EOF >> $ps
-#S 0.1i t 0.15i blue 0.25p,blue 0.3i OBS 
-#S 0.1i a 0.15i red 0.25p,red 0.3i Onshore Receivers 
-#EOF
 
 # Convert to PDF
 #gmt psconvert -Tf -Fnepal $ps

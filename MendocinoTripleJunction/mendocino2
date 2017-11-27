@@ -8,8 +8,6 @@ gmt pscoast -R$r -JM6i -P -Y3i -S0/40/80 -Ggrey -Na,thick -Ba1/a1:."Mendocino Tr
 # New file for earthquake location and magnitude
 awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' quakes.txt > quakes_edit.txt
 
-awk -F"" '{if($11 > 8) print $4, $3, $5, $11*0.1; else if($11 > 6) print $4, $3, $5, $11*0.07; else if($11 > 4) print $4, $3, $5, $11*0.05; else print $4, $3, $5, $11*0.02;}'
-
 
 # New file for stations 
 awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
@@ -26,7 +24,7 @@ gmt psxy -R -J -O -K quakes_edit.txt -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $
 gmt psmeca focalmeca.txt -Sz0.2 -h1 -L -R -J -O -K >> $ps
 
 # Locate Recievers 
-gmt psxy -R -J -O -K wa6.receivers -i1,2 -Sc0.4 -L -Ggreen >> $ps
+#gmt psxy -R -J -O -K wa6.receivers -i1,2 -Sc0.4 -L -Ggreen >> $ps
 
 # Locate Stations 
 gmt psxy OBS_coordinates.txt -R -J -i1,2 -St0.4 -W1.0,blue -Gblue -O -K >> $ps
@@ -39,6 +37,9 @@ gmt pstext plates_names.txt -R -J -K -O  >> $ps
 
 # Plate boundaries 
 gmt psxy -J -R platesdata.txt -W2p,black -O -K -t50 -Sf0.25/3p -Gred >> $ps
+
+# Mendocino Transform Fault
+gmt psxy -J -R MTF.txt -W2p,blue -O -K -Sf0.25/3p -Gblue >> $ps
 
 # Faults 
 gmt psxy -J -R faults.txt -W2p,red -O -K -Sf0.25/3p -Gred >> $ps
@@ -85,6 +86,13 @@ S 0.2i c 0.30 0/100/236.87 black 0.32i 150 km
 G 0.1i
 EOF
 
+
+# Legend for receivers and faults 
+gmt pslegend -R -J -O -K -F+gwhite+p1p,black -DJBC+o4.35/-4.65i+w2.5i << EOF >> $ps
+S 0.1i - 0.15i red 2p,red 0.3i San Andreas Fault
+S 0.1i - 0.15i blue 2p,blue 0.3i Mendocino Transform Fault
+EOF
+
 gmt pslegend -R -J -O -F+gwhite+p1p,black -DjTR+o0.1c+w1.5i+l1.2 << EOF >> $ps
 S 0.1i t 0.15i blue 0.25p,blue 0.25i OBS 
 S 0.1i a 0.15i red 0.25p,red 0.25i Onshore Shots
@@ -94,4 +102,4 @@ EOF
 
 
 # Convert to PDF
-gmt psconvert -Tg -Fmendocino2 $ps
+gmt psconvert -Tf -Fmendocino2 $ps
