@@ -1,13 +1,13 @@
 # GMT 5 Session common arguments shelf
-BEGIN GMT 5.4.1
-B	a1/a1:.Mendocino Triple Junction:
+BEGIN GMT 5.4.2
+B	a10wsne
 J	M
-JA	A-100/30/5i
-JM	M6i
-Jm	m4c
-JN	N0/8i
-R	-128/-120.5/38/43
-X	11.1
-Y	c
-L	11
+JM	M3.81
+JO	Oa100/10/10/54/5.8i
+Ju	u10/1:1
+R	-140/-105/27/52
+X	12
+Y	-3
+p	189/90
+L	6
 END

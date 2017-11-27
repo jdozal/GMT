@@ -1,0 +1,77 @@
+#!/bin/csh
+ps="mendocino6.ps"
+r1="-124.5/-122/40.3/41"
+#r1="-124.4/40.3/-122/41+r"
+# -p189/90
+
+# Cut grid to selected area
+gmt grdcut topo30.grd -R$r1 -Gmendocino_topo.grd
+
+
+# Make Color Palette Table
+gmt grd2cpt mendocino_topo.grd -Crelief -E -Qi > mendocino_cpt.cpt
+
+# Crate shade file (gradient)
+gmt grdgradient mendocino_topo.grd -A0 -fg -Nt -Gmendocino_shade.grd 
+
+
+# Base map
+gmt pscoast -R$r1 -JM6i -p189/90 -P -Na -Wfaint -K -Yc -Ba0.2/a0.1 > $ps
+
+# Add topography layer 
+gmt grdimage mendocino_topo.grd -R -K -J -p -Cmendocino_cpt.cpt -Imendocino_shade.grd -O >> $ps
+
+
+# Add scale (Elevation)
+gmt psscale -Cmendocino_cpt.cpt -DjBC+w4i+o-2.5c/-3c+h -p -Bx+l"Elevation (m)" -Ba -K -R -J -O >> $ps
+
+# From Northing Easting to Lat/Lon 
+# gmt mapproject wa6_receivers.txt -Ju10/1:1 -i1,2 -C -F -I  >> testUTM.txt
+
+# Locate Receivers 
+gmt psxy testUTM.txt -R -J -St0.1 -W1.0,blue -Gblue -p -O -K >> $ps
+#gmt psxy testUTM.txt -R-180/180/0/90 -Ju10N/1:1 -i1,2 -Sa0.4 -W1.0,red -Gred -O -K >> $ps
+#gmt psxy offtoonshore_shots.txt -R -J -i3,2 -W2p,black -Sf0.25/3p -O -K >> $ps
+#echo 540739.0 4481886.0 | psxy -R -Ju10N/1:1 -Sc0.1i -Gblue -O >> $ps
+
+# Add Legend 
+#gmt pslegend -R -J -O -K -DjBC+w2i+o6/-4.5c << EOF >> $ps
+#S 0.1i - 0.15i red 1p,red 0.3i < 150 years
+#S 0.1i - 0.15i orange 1p,orange 0.3i < 15,000 years
+#S 0.1i - 0.15i green 1p,green 0.3i < 130,000 years
+#S 0.1i - 0.15i blue 1p,blue 0.3i < 750,000 years
+#S 0.1i - 0.15i black 1p,black 0.3i < 1.6 million years
+#S 0.1i t 0.15i red 0.5,black 0.3i Volcano
+#EOF
+
+#gmt pslegend -R -K -J -O -F+gwhite+p1p,black -DJBC+o-5.5/-0.7i+w1.5i << EOF >> $ps
+#S 0.1i t 0.15i white 1p,black 0.25i OBS 
+#S 0.1i a 0.15i white 1p,black 0.25i Onshore Shots
+#S 0.1i - 0.15i black 2p,lightblue 0.25i Line 6
+#EOF
+
+# Insert map
+gmt pscoast -R-140/-105/27/52 -JM3.81 -Na,thin -Ggrey -Swhite -Wfaint -O -K -Ba10 -Bwsne -X12 -Y-3 >> $ps
+gmt psxy -R -JM -O -W1.5,black << EOF >> $ps
+-125 40
+-125 41.5
+-121.5 41.5
+-121.5 40
+-125 40
+EOF
+
+
+#gmt psbasemap -JM6i -Yc -R-130/-116/35.5/45 -Ba1/a1:."Mendocino Triple Junction": -P -K > $ps
+
+
+# Plate boundaries 
+#gmt psxy -J -R platesdata.txt -W1.5p,black -t50 -O -K -Sf0.25/3p -Gblack >> $ps
+
+# Focal Mechanisms 
+#gmt psmeca focalmeca.txt -Sz0.3 -h1 -L -R -J -O >> $ps
+
+# Add plate labels 
+#gmt pstext plates_names.txt -R -J -K -O  >> $ps
+
+# Convert to PDF
+gmt psconvert -Tf -Fmendocino6 $ps

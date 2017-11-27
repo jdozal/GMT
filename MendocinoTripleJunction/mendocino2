@@ -8,6 +8,9 @@ gmt pscoast -R$r -JM6i -P -Y3i -S0/40/80 -Ggrey -Na,thick -Ba1/a1:."Mendocino Tr
 # New file for earthquake location and magnitude
 awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' quakes.txt > quakes_edit.txt
 
+awk -F"" '{if($11 > 8) print $4, $3, $5, $11*0.1; else if($11 > 6) print $4, $3, $5, $11*0.07; else if($11 > 4) print $4, $3, $5, $11*0.05; else print $4, $3, $5, $11*0.02;}'
+
+
 # New file for stations 
 awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
 
@@ -72,13 +75,13 @@ EOF
 gmt pslegend -R -J -O -K -DJBC+o-3.6/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
 H 12 - Depth 
 G 0.1i
-S 0.2i c 0.30 228/123/0 black 0.32i 0 m
+S 0.2i c 0.30 228/123/0 black 0.32i 0 km
 G 0.1i
-S 0.2i c 0.30 255/201.88/0 black 0.32i 50 m
+S 0.2i c 0.30 255/201.88/0 black 0.32i 50 km
 G 0.1i
-S 0.2i c 0.30 151.88/255/18.75 black 0.32i 100 m
+S 0.2i c 0.30 151.88/255/18.75 black 0.32i 100 km
 G 0.1i
-S 0.2i c 0.30 0/100/236.87 black 0.32i 150 m
+S 0.2i c 0.30 0/100/236.87 black 0.32i 150 km
 G 0.1i
 EOF
 
