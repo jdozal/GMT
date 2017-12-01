@@ -1,7 +1,7 @@
 #!/bin/csh
 
 ps="nepal.ps"
-r="79/89/25/31"
+r="84/88/26/30"
 
 # Cut grid to selected area
 gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -Gnepal_topo.grd
@@ -19,7 +19,7 @@ gmt pscoast -JM6i -Na -Yc -K -R$r -Ba1/a1 -P > $ps
 gmt grdimage nepal_topo.grd -R -J -K -Crelief -Inepal_shade.grd -O >> $ps
 
 # Make Color Palette Table
-gmt grd2cpt aftershock_dipslip.grd -Chot -E -Qi > ad_cpt.cpt
+# gmt grd2cpt aftershock_dipslip.grd -Cnepal -E -Qi > ad_cpt.cpt
 
 # Crate shade ps (gradient)
 gmt grdgradient aftershock_dipslip.grd -A0 -fg -Nt -Gad_shade.grd 
@@ -29,5 +29,5 @@ gmt grdimage aftershock_dipslip.grd -R -J -Q -Chot -Iad_shade.grd -O >> $ps
 
 
 # Convert to PDF
-#gmt psconvert -Tf -Fnepal $ps
+gmt psconvert -Tf -Fnepal $ps
 

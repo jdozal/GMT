@@ -6,14 +6,26 @@ r="-128/-120.5/38/43"
 gmt pscoast -R$r -JM6i -P -Y3i -S0/40/80 -Ggrey -Na,thick -Ba1/a1:."Mendocino Triple Junction": -K -Slightblue> $ps
 
 # New file for earthquake location and magnitude
-awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' quakes.txt > quakes_edit.txt
+#awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' quakes.txt > quakes_edit.txt
 
 
 # New file for stations 
-awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
+#awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
 
 # Create cpt for earhquakes depth
 #gmt makecpt -Cseis -E5 -i2 quakes_edit.txt > depth.cpt
+
+# Cut grid to selected area
+gmt grdcut topo30.grd -R$r -Gmendocino_topo.grd
+
+# Make Color Palette Table
+gmt grd2cpt mendocino_topo.grd -Crelief -E -Qi > mendocino_cpt.cpt
+
+# Crate shade ps (gradient)
+gmt grdgradient mendocino_topo.grd -A0 -fg -Nt -Gmendocino_shade.grd 
+
+# Add topography layer 
+gmt grdimage mendocino_topo.grd -R -J -Cmendocino_cpt.cpt -Imendocino_shade.grd -K -O >> $ps
 
 # Locate earthquakes (Line, Fill)
 gmt psxy -R -J -O -K quakes_edit.txt -t60 -Scc -L -Cdepth.cpt >> $ps
@@ -21,7 +33,7 @@ gmt psxy -R -J -O -K quakes_edit.txt -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $
 #gmt psxy quakes_edit.txt -R -J -Scc -W1.0,black -O -K >> $ps
 
 # Focal Mechanisms 
-gmt psmeca focalmeca.txt -Sz0.2 -h1 -L -R -J -O -K >> $ps
+gmt psmeca focalmeca.txt -Sz0.45 -h1 -L -R -J -O -K >> $ps
 
 # Locate Recievers 
 #gmt psxy -R -J -O -K wa6.receivers -i1,2 -Sc0.4 -L -Ggreen >> $ps
