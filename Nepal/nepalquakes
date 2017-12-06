@@ -1,0 +1,86 @@
+#!/bin/csh
+
+ps="nepalquakes.ps"
+r="78/90/24.5/31.5"
+topo="nepal_topo.grd"
+cpt="nepal_cpt.cpt"
+shade="nepal_shade.grd"
+dataq="quakes1206.txt"
+
+# Base map
+gmt pscoast -R$r -JM6i -P -Y6i -S0/40/80 -Ggrey -Na,thick -Ba1/a1 -K -Slightblue> $ps
+
+# New file for earthquake location and magnitude
+awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' earthquakes.txt > quakes1206.txt
+
+# New file for stations 
+#awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
+
+# Create cpt for earhquakes depth
+gmt makecpt -Cseis -E5 -i2 $dataq > depth.cpt
+
+# Cut grid to selected area
+gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -G$topo
+
+# Make Color Palette Table
+#gmt grd2cpt $topo -Crelief -E -Qi > $cpt
+
+# Crate shade ps (gradient)
+gmt grdgradient $topo -A0 -fg -Nt -G$shade
+
+# Add topography layer 
+gmt grdimage $topo -R -J -Crelief -I$shade -K -O >> $ps
+
+# Borders
+gmt pscoast -R -J -P -Na,thick -K -O >> $ps
+
+# Locate earthquakes (Line, Fill)
+gmt psxy -R -J -O -K $dataq -t60 -Scc -L -Cdepth.cpt >> $ps
+gmt psxy -R -J -O -K $dataq -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $ps
+#gmt psxy quakes_edit.txt -R -J -Scc -W1.0,black -O -K >> $ps
+
+psxy $dataq -i0.1 -R-120/-20/-700/0 -Sc0.05 -G0/0/255 -Y0i -W0.1 -L -Ba30/a100 -O -K -P >> $ps
+
+# Focal Mechanisms 
+#gmt psmeca focalmeca.txt -Sz0.45 -h1 -L -R -J -O -K >> $ps
+
+# Add plate labels 
+#gmt pstext plates_names.txt -R -J -K -O  >> $ps
+
+# Plate boundaries 
+#gmt psxy -J -R platesdata.txt -W2p,black -O -K -t50 -Sf0.25/3p -Gred >> $ps
+
+# Add scale (Magnitude) and stations legend 
+gmt pslegend -R -J -O -K -DJBC+o-6.2/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+H 12 - Magnitude
+G 0.1i
+S 0.2i c 0.14 - black 0.35i M = 2
+G 0.1i
+S 0.2i c 0.28 - black 0.35i M = 4
+G 0.1i
+S 0.2i c 0.42 - black 0.35i M = 6
+G 0.1i
+S 0.2i c 0.56 - black 0.35i M = 8
+G 0.1i
+EOF
+
+gmt pslegend -R -J -O -DJBC+o-3.6/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+H 12 - Depth 
+G 0.1i
+S 0.2i c 0.30 228/123/0 black 0.32i 0 km
+G 0.1i
+S 0.2i c 0.30 255/201.88/0 black 0.32i 50 km
+G 0.1i
+S 0.2i c 0.30 151.88/255/18.75 black 0.32i 100 km
+G 0.1i
+S 0.2i c 0.30 0/100/236.87 black 0.32i 150 km
+G 0.1i
+EOF
+
+#gmt pslegend -DJBC+o0/0.4i+w7i/1.7i -R -J -O -F+p+gwhite neis.legend  >> $ps
+
+
+# Convert to PDF
+#gmt psconvert -Tf -Fmendocino2 $ps
+
+open $ps

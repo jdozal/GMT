@@ -3,7 +3,8 @@ BEGIN GMT 5.4.2
 B	a1/a1
 J	M
 JM	M6i
-R	84/88/26/30
-Y	c
-L	3
+JX	X6.3i/5i
+R	78/90/24.5/31.5
+Y	6i
+L	11
 END

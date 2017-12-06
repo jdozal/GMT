@@ -1,0 +1,47 @@
+#!/bin/csh
+
+ps="nepal.ps"
+r="78/90/24.5/31.5"
+
+# New file for earthquake location and magnitude
+#awk -F" " '{if($1 > 85.5){ $8=$1+1.5; $9=$2+0;} else {$8=$1-1.5; $9=$2+0;} print}' focalmeca.txt > focalmeca_edit.txt
+awk -F" " '{if($4 < 100) print}' focalmeca.txt > focalmeca_edit.txt
+
+# Cut grid to selected area
+#gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -Gnepal_topo.grd
+
+# Make Color Palette Table
+#gmt grd2cpt nepal_topo.grd -Crelief -E -Qi > nepal_cpt.cpt
+
+# Crate shade ps (gradient)
+#gmt grdgradient nepal_topo.grd -A0 -fg -Nt -Gnepal_shade.grd 
+
+
+# Base map
+#gmt pscoast -JM6i -Na -Yc -K -R$r -Ba1/a1 -P > $ps
+
+# Add topography layer 
+#gmt grdimage nepal_topo.grd -R -J -K -Crelief -Inepal_shade.grd -O >> $ps
+
+# Boundaries 
+#gmt pscoast -JM6i -Na -Yc -K -O -R$r -P >> $ps
+
+
+# Make Color Palette Table
+# gmt grd2cpt aftershock_dipslip.grd -Cnepal -E -Qi > ad_cpt.cpt
+
+# Crate shade ps (gradient)
+#gmt grdgradient aftershock_dipslip.grd -A0 -fg -Nt -Gad_shade.grd 
+
+# Add layer
+#gmt grdimage aftershock_dipslip.grd -R -J -Q -Chot -Iad_shade.grd -O >> $ps
+
+#Add focal meca
+#gmt psmeca mohan_final.txt  -R$r -J -t60 -Sa0.4 -O -K -L -V -C -P -W0.6 -G0/0/255 >>$ps
+
+pscoupe mohan_final.txt -JX6.3i/5i -R0/246/-200/0 -Sc0.3 -Aa84/29/88/27/90/100/0/200 -G237/28/36 > $ps
+
+# Convert to PDF
+#gmt psconvert -Tf -Fnepalfocal $ps
+
+open $ps
