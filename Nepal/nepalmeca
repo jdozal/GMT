@@ -1,47 +1,114 @@
 #!/bin/csh
 
-ps="nepal.ps"
+ps="nepalmeca.ps"
 r="78/90/24.5/31.5"
-
-# New file for earthquake location and magnitude
-#awk -F" " '{if($1 > 85.5){ $8=$1+1.5; $9=$2+0;} else {$8=$1-1.5; $9=$2+0;} print}' focalmeca.txt > focalmeca_edit.txt
-awk -F" " '{if($4 < 100) print}' focalmeca.txt > focalmeca_edit.txt
-
-# Cut grid to selected area
-#gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -Gnepal_topo.grd
-
-# Make Color Palette Table
-#gmt grd2cpt nepal_topo.grd -Crelief -E -Qi > nepal_cpt.cpt
-
-# Crate shade ps (gradient)
-#gmt grdgradient nepal_topo.grd -A0 -fg -Nt -Gnepal_shade.grd 
-
+topo="nepal_topo.grd"
+cpt="nepal_cpt.cpt"
+shade="nepal_shade.grd"
+dataq="quakes1206.txt"
+dataq1="quakes1206_mag.txt"
+center="85/28"
+azimuth="100.0"
+width="-3/3"
+length="-3/3"
+brange="-15/15/-15/0"
+bprojection="x0.5/0.5"
+btick="a5f5g0/a5f5g0"
 
 # Base map
-#gmt pscoast -JM6i -Na -Yc -K -R$r -Ba1/a1 -P > $ps
+gmt pscoast -R$r -JM6i -P -Y6i -S0/40/80 -Ggrey -Na,thick -Ba1/a1 -K -Slightblue> $ps
 
-# Add topography layer 
-#gmt grdimage nepal_topo.grd -R -J -K -Crelief -Inepal_shade.grd -O >> $ps
+# New file for earthquake location and magnitude
+awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' earthquakes.txt > quakes1206.txt
+awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11; else if(!$5) print $4, $3, 0.0, $11}' earthquakes.txt > quakes1206_mag.txt
 
-# Boundaries 
-#gmt pscoast -JM6i -Na -Yc -K -O -R$r -P >> $ps
+# New file for stations 
+#awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
 
+# Create cpt for earhquakes depth
+gmt makecpt -Cseis -E5 -i2 $dataq > depth.cpt
+
+# Cut grid to selected area
+gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -G$topo
 
 # Make Color Palette Table
-# gmt grd2cpt aftershock_dipslip.grd -Cnepal -E -Qi > ad_cpt.cpt
+#gmt grd2cpt $topo -Crelief -E -Qi > $cpt
 
 # Crate shade ps (gradient)
-#gmt grdgradient aftershock_dipslip.grd -A0 -fg -Nt -Gad_shade.grd 
+gmt grdgradient $topo -A0 -fg -Nt -G$shade
 
-# Add layer
-#gmt grdimage aftershock_dipslip.grd -R -J -Q -Chot -Iad_shade.grd -O >> $ps
+# Add topography layer 
+gmt grdimage $topo -R -J -Crelief -I$shade -K -O >> $ps
 
-#Add focal meca
-#gmt psmeca mohan_final.txt  -R$r -J -t60 -Sa0.4 -O -K -L -V -C -P -W0.6 -G0/0/255 >>$ps
+# Borders
+gmt pscoast -R -J -P -Na,thick -K -O >> $ps
 
-pscoupe mohan_final.txt -JX6.3i/5i -R0/246/-200/0 -Sc0.3 -Aa84/29/88/27/90/100/0/200 -G237/28/36 > $ps
+# Locate earthquakes (Line, Fill)
+gmt psxy -R -J -O -K $dataq -t60 -Scc -L -Cdepth.cpt >> $ps
+gmt psxy -R -J -O -K $dataq -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $ps
+#gmt psxy quakes_edit.txt -R -J -Scc -W1.0,black -O -K >> $ps
+
+gmt project $dataq1 -C85/28 -A$azimuth -Fxyzpqrs -W$width -L$length -V > LV_seismicity.tmp
+
+gmt psxy LV_seismicity.tmp -i6,7 -J -R -W0.25,blue -G0/0/255 -O -K >> $ps
+
+#gmt psxy $dataq -i0,1 -R-120/-20/-700/0 -Sc0.05 -G0/0/255 -W0.1 -L -Ba30/a100 -X2 -Y3 -JX5/5 -P > cross.ps
+
+# Focal Mechanisms 
+gmt psmeca focalmeca.txt -Sz0.45 -h1 -L -R -J -O -K >> $ps
+
+# Add plate labels 
+#gmt pstext plates_names.txt -R -J -K -O  >> $ps
+
+# Plate boundaries 
+#gmt psxy -J -R platesdata.txt -W2p,black -O -K -t50 -Sf0.25/3p -Gred >> $ps
+
+
+# Add scale (Magnitude) and stations legend 
+gmt pslegend -R -J -O -K -DJBC+o-6.2/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+H 12 - Magnitude
+G 0.1i
+S 0.2i c 0.14 - black 0.35i M = 2
+G 0.1i
+S 0.2i c 0.28 - black 0.35i M = 4
+G 0.1i
+S 0.2i c 0.42 - black 0.35i M = 6
+G 0.1i
+S 0.2i c 0.56 - black 0.35i M = 8
+G 0.1i
+EOF
+
+gmt pslegend -R -J -O -K -DJBC+o-3.6/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+H 12 - Depth 
+G 0.1i
+S 0.2i c 0.30 228/123/0 black 0.32i 0 km
+G 0.1i
+S 0.2i c 0.30 255/201.88/0 black 0.32i 50 km
+G 0.1i
+S 0.2i c 0.30 151.88/255/18.75 black 0.32i 100 km
+G 0.1i
+S 0.2i c 0.30 0/100/236.87 black 0.32i 150 km
+G 0.1i
+EOF
+
+
+
+east=90
+west=78
+dmin=0
+dmax=50
+
+proj=-JX15/-5
+tick=-B1:Longitude:/10:Depth:WSen
+
+
+awk '{print($7,$3)}' LV_seismicity.tmp | psxy -R$west/$east/$dmin/$dmax $proj $tick -W1 -Sc.2 -G200 -O -Y-8 -P >> $ps
+
+# Cross Section
+#gmt psxy boxdim -R$brange -J$bprojection -B$btick -W1 -P -O -K -Y-9 >> $ps
+#awk '{print $4, $3*(-1.0)}' LV_seismicity.tmp | psxy -J$bprojection -R$brange -P -Sc0.15 -G0/0/0 -O -V >> $ps
 
 # Convert to PDF
-#gmt psconvert -Tf -Fnepalfocal $ps
+#gmt psconvert -Tf -Fmendocino2 $ps
 
 open $ps

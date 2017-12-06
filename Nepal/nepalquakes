@@ -6,12 +6,21 @@ topo="nepal_topo.grd"
 cpt="nepal_cpt.cpt"
 shade="nepal_shade.grd"
 dataq="quakes1206.txt"
+dataq1="quakes1206_mag.txt"
+center="85/28"
+azimuth="100.0"
+width="-3/3"
+length="-3/3"
+brange="-15/15/-15/0"
+bprojection="x0.5/0.5"
+btick="a5f5g0/a5f5g0"
 
 # Base map
 gmt pscoast -R$r -JM6i -P -Y6i -S0/40/80 -Ggrey -Na,thick -Ba1/a1 -K -Slightblue> $ps
 
 # New file for earthquake location and magnitude
 awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' earthquakes.txt > quakes1206.txt
+awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11; else if(!$5) print $4, $3, 0.0, $11}' earthquakes.txt > quakes1206_mag.txt
 
 # New file for stations 
 #awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
@@ -39,7 +48,11 @@ gmt psxy -R -J -O -K $dataq -t60 -Scc -L -Cdepth.cpt >> $ps
 gmt psxy -R -J -O -K $dataq -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $ps
 #gmt psxy quakes_edit.txt -R -J -Scc -W1.0,black -O -K >> $ps
 
-psxy $dataq -i0.1 -R-120/-20/-700/0 -Sc0.05 -G0/0/255 -Y0i -W0.1 -L -Ba30/a100 -O -K -P >> $ps
+gmt project $dataq1 -C85/28 -A$azimuth -Fxyzpqrs -W$width -L$length -V > LV_seismicity.tmp
+
+gmt psxy LV_seismicity.tmp -i6,7 -J -R -W0.25,blue -G0/0/255 -O -K >> $ps
+
+#gmt psxy $dataq -i0,1 -R-120/-20/-700/0 -Sc0.05 -G0/0/255 -W0.1 -L -Ba30/a100 -X2 -Y3 -JX5/5 -P > cross.ps
 
 # Focal Mechanisms 
 #gmt psmeca focalmeca.txt -Sz0.45 -h1 -L -R -J -O -K >> $ps
@@ -49,6 +62,7 @@ psxy $dataq -i0.1 -R-120/-20/-700/0 -Sc0.05 -G0/0/255 -Y0i -W0.1 -L -Ba30/a100 -
 
 # Plate boundaries 
 #gmt psxy -J -R platesdata.txt -W2p,black -O -K -t50 -Sf0.25/3p -Gred >> $ps
+
 
 # Add scale (Magnitude) and stations legend 
 gmt pslegend -R -J -O -K -DJBC+o-6.2/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
@@ -64,7 +78,7 @@ S 0.2i c 0.56 - black 0.35i M = 8
 G 0.1i
 EOF
 
-gmt pslegend -R -J -O -DJBC+o-3.6/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
+gmt pslegend -R -J -O -K -DJBC+o-3.6/-1.6i+w1i -F+gwhite+p1p,black << EOF >> $ps
 H 12 - Depth 
 G 0.1i
 S 0.2i c 0.30 228/123/0 black 0.32i 0 km
@@ -77,8 +91,22 @@ S 0.2i c 0.30 0/100/236.87 black 0.32i 150 km
 G 0.1i
 EOF
 
-#gmt pslegend -DJBC+o0/0.4i+w7i/1.7i -R -J -O -F+p+gwhite neis.legend  >> $ps
 
+
+east=90
+west=78
+dmin=0
+dmax=50
+
+proj=-JX15/-5
+tick=-B1:Longitude:/10:Depth:WSen
+
+
+awk '{print($7,$3)}' LV_seismicity.tmp | psxy -R$west/$east/$dmin/$dmax $proj $tick -W1 -Sc.2 -G200 -O -Y-8 -P >> $ps
+
+# Cross Section
+#gmt psxy boxdim -R$brange -J$bprojection -B$btick -W1 -P -O -K -Y-9 >> $ps
+#awk '{print $4, $3*(-1.0)}' LV_seismicity.tmp | psxy -J$bprojection -R$brange -P -Sc0.15 -G0/0/0 -O -V >> $ps
 
 # Convert to PDF
 #gmt psconvert -Tf -Fmendocino2 $ps
