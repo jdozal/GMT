@@ -29,7 +29,7 @@ awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11; else if(!$5) print $4, $3, 0.0
 gmt makecpt -Cseis -E5 -i2 $dataq > depth.cpt
 
 # Cut grid to selected area
-gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -G$topo
+# gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -G$topo
 
 # Make Color Palette Table
 #gmt grd2cpt $topo -Crelief -E -Qi > $cpt
@@ -109,6 +109,6 @@ awk '{print($7,$3)}' LV_seismicity.tmp | psxy -R$west/$east/$dmin/$dmax $proj $t
 #awk '{print $4, $3*(-1.0)}' LV_seismicity.tmp | psxy -J$bprojection -R$brange -P -Sc0.15 -G0/0/0 -O -V >> $ps
 
 # Convert to PDF
-#gmt psconvert -Tf -Fmendocino2 $ps
+gmt psconvert -Tf -Fnepalquakes $ps
 
 open $ps
