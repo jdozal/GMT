@@ -8,9 +8,10 @@ cpt="nepal_cpt.cpt"
 shade="nepal_shade.grd"
 dataq="quakes1206.txt"
 dataq1="quakes1206_mag.txt"
-center="85.5/28"
+center="85.5/27"
+end="84.5/26.2"
 azimuth="120"
-width="-1/1"
+width="-0.2/0.2"
 length="-2/2"
 #brange="-15/15/-15/0"
 #bprojection="x0.5/0.5"
@@ -54,12 +55,17 @@ gmt pscoast -R -J -Na,thick -K -O >> $ps
 # Focal Mechanisms 
 gmt psmeca focalmeca.txt -R -J -Sa0.5/10/0.03u -O -K -L -C -P -G0/0/255 >>$ps
 
+gmt project focalmeca.txt -C$center -E$end -Fxyzpqrs -W$width -L$length -V > topocross.tmp 
 
-gmt project -C85/28.5 -E86.5/27.5 -G.5 -Q > track4
+#gmt psxy topocross.tmp -i0,1 -J -R -W1,black -Gblack -O -K >> $ps
+gmt psxy topocross.tmp -i11,12 -J -R -W1,red -Gred -O -K >> $ps
 
-gmt project focalmeca.txt -C$center -A$azimuth -Fxyzpqrs -W$width -L$length -V > topocross.tmp 
+#points 
 
-gmt psxy topocross.tmp -i11,12 -J -R -W1,red -G255 -O -K >> $ps
+#gmt psxy << END -R -J -O -K -Sc0.2 -Gred >> $ps
+#85.5   28
+#85  27.68383
+#END
 
 #faults 
 gmt psxy -J -R mft.txt -W1p,orange -O -K -Sf0.25/1p -Gorange >> $ps
@@ -72,7 +78,9 @@ gmt psxy -J -R mft.txt -W1p,orange -O -K -Sf0.25/1p -Gorange >> $ps
 
 #-Ablon1/lat1/strike/p_length/dip/p_width/dmin/dmax[f]
 #-Aalon1/lat1/lon2/lat2/dip/p_width/dmin/dmax[f]
-pscoupe focalmeca.txt -P -JX6i/3i -R-100/200/-25/50 -Sa0.5/10/0.03u -B50:Distance:/10:Depth:WSen -Aa84/27.43/84/27.68383/90/0.2/0/50 -Y-10 -G237/28/36 -E255 -N -V -O >> $ps 
+awk '{print $1, $2, $3*-1, $4, $5, $6, $7, $8, $9}' topocross.tmp > new_topo.txt
+
+gmt pscoupe new_topo.txt -P -Q -JX6i/3i -R-50/150/-50/0 -Sa0.5/10/0.03u -B50:Distance:/10:Depth:WSen -Aa84/27.43/84/27.68383/90/0.2/-50/0 -Y-10 -G237/28/36 -E255 -N -V -O >> $ps 
 
 #84/87.6
 east=87.6
