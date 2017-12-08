@@ -1,0 +1,75 @@
+#!/bin/csh
+gmt gmtset FORMAT_GEO_MAP +Df
+gmt gmtset PAPER_MEDIA
+gmt gmtset PS_PAGE_ORIENTATION landscape
+
+set w = 80
+set e = 92
+set s = 24
+set n = 35
+#set r = $w/$e/$s/$n
+#set r = 84.24/86.50/27.78/28.50
+#set r = 84/88.6/26.4/29.6
+set r = 84/87.6/26.4/29.6
+#set r = `minmax -I0.2 nepal_bb.txt | sed 's/-R/ /g'`
+#set r = ` awk '{print $11,$9}' Nepal.batch | minmax -I0.2 | sed 's/-R/ /g'`
+set north = x1.0i/0.90i/0.4i/2
+#set scale = 84.7/26.8/2/40+lkm
+set scale = 84.6/26.5/2/40+lkm
+set outfile = legend_focal.ps
+#set cptfile = cptfile/nrwc.cpt
+set cptfile = gray.cpt
+#set topofile = h10g.grd
+set topofile = nepal2.grd
+set gradfile = h10g_i5.grd
+#set j = m1
+set j = m15
+#set t = m10
+\rm $outfile
+# Create basemap
+gmt psbasemap -R$r -J$j -P -K -V -Ba.5f.5g.5WSen -Y7.5 >! $outfile
+
+# Topo
+#blockmean -R$r -I0.00083333333333333 nepal.xyz -bo -fg -V >! nepal.b
+#surface -R$r -I0.00083333333333333 -G$topofile -bi3 -fg -V
+
+# Display topography
+#gmt grdgradient $topofile -G$gradfile -A0 -M -Nt
+gmt grdgradient $topofile -G$gradfile -A0 -Nt
+gmt grdimage $topofile -I$gradfile  -R$r -J$j -V -C$cptfile -O -K  >> $outfile
+#gmt makecpt -Cseis -T0/40/5 -Z >! colors.cpt
+#gmt psmeca kl.txt  -R$r -JM25c -Sa0.6/10/0.03u -O  -L  -C  -W -G0/120/120 >>$outfile
+#gmt pstext -R$r -J$j -V -K -O -N -Gred -P << EOF >> $outfile
+#gmt pstext -R$r -J$j -Sc0.2 -V -K -O -N -Gred -P << EOF >> $outfile
+#pstext -R$r -J$j -Sc0.2 -V -K -O -N -Gred -P << EOF >> $outfile
+#gmt pstext -R$r -J$j -Sc0.2 -V -K -O -N -Gred -P << EOF >> $outfile
+#gmt pstext -R$r -J$j -G200/200/250 -O -P -K <<EOF >> $outfile
+#85.962 27.97
+#EOF
+gmt pscoast -R$r -J$j -P -V -Df -I1/1p,blue -Df -Tf$north -Lf$scale  -W3 -Na/2 -S100/200/255 -O -V  -K --FONT_TITLE=12 >> $outfile
+#gmt psmeca kl.txt  -R$r -J$j -Sa0.6/10/0.03u -O -K  -L -V -C  -W.6 -G0/0/255 >>$outfile
+#gmt psmeca 1203.txt  -R$r -J$j -Sa0.9/10/0.03u -O -K  -L -V -C  -W.6 -G0/0/255 >>$outfile
+#gmt psmeca 1202.txt  -R$r -J$j -Sa0.9/10/0.03u -O  -L -V -C -P -W.6 -G0/0/255 >>$outfile
+#gmt psmeca mohan_final.txt  -R$r -J$j -Sa2/10/0.03u -O -K -L -V -C -P -W0.6 -G0/0/255 >>$outfile
+#gmt psmeca less4.txt  -R$r -J$j -Sa2/10/0.03u -O -K -L -V -C -P -W0.6 -G0/0/255 >>$outfile
+
+# Focal Mechanisms Legend
+gmt pslegend << END -R -J -DJBC+o-1.6/-0.9i+w1.50i -F+gwhite+p1p,black -K -O -P >>$outfile
+S 0.25i c 1p - white 0.35i Normal
+G 0.11i
+S 0.25i c 1p - white 0.35i Thrust
+G 0.11i
+S 0.25i c 1p - white 0.35i Strike-Slip
+END
+
+gmt psmeca << END -R -J -Sa.3i -O -K -P -G0/0/255 >> $outfile
+85.5 26.5 0.0 0 90 180 5 0 0
+85.5 26.6 0.0 0 45 90 5 0 0
+85.5 26.7 0.0 0 45 -90 5 0 0
+END
+
+#END
+
+# Display with ghost script
+open $outfile
+

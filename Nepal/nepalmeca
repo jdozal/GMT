@@ -10,18 +10,18 @@ dataq="quakes1206.txt"
 dataq1="quakes1206_mag.txt"
 center="85.5/28"
 azimuth="120"
-width="-1.5/1.5"
-length="-1.5/1.5"
-brange="-15/15/-15/0"
-bprojection="x0.5/0.5"
-btick="a5f5g0/a5f5g0"
+width="-1/1"
+length="-2/2"
+#brange="-15/15/-15/0"
+#bprojection="x0.5/0.5"
+#btick="a5f5g0/a5f5g0"
 
 # Base map
 gmt pscoast -P -Y12 -R$r -JM6i -S0/40/80 -Ggrey -Na,thick -Ba1/a1 -K -Slightblue> $ps
 
 # New file for earthquake location and magnitude
-awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' earthquakes.txt > quakes1206.txt
-awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11; else if(!$5) print $4, $3, 0.0, $11}' earthquakes.txt > quakes1206_mag.txt
+#awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' earthquakes.txt > quakes1206.txt
+#awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11; else if(!$5) print $4, $3, 0.0, $11}' earthquakes.txt > quakes1206_mag.txt
 
 # New file for stations 
 #awk '{print $3, substr($2,2)}' stations.txt > stations_edit.txt
@@ -54,9 +54,15 @@ gmt pscoast -R -J -Na,thick -K -O >> $ps
 # Focal Mechanisms 
 gmt psmeca focalmeca.txt -R -J -Sa0.5/10/0.03u -O -K -L -C -P -G0/0/255 >>$ps
 
+
+gmt project -C85/28.5 -E86.5/27.5 -G.5 -Q > track4
+
 gmt project focalmeca.txt -C$center -A$azimuth -Fxyzpqrs -W$width -L$length -V > topocross.tmp 
 
 gmt psxy topocross.tmp -i11,12 -J -R -W1,red -G255 -O -K >> $ps
+
+#faults 
+gmt psxy -J -R mft.txt -W1p,orange -O -K -Sf0.25/1p -Gorange >> $ps
 
 # Add plate labels 
 #gmt pstext plates_names.txt -R -J -K -O  >> $ps
@@ -64,8 +70,9 @@ gmt psxy topocross.tmp -i11,12 -J -R -W1,red -G255 -O -K >> $ps
 # Plate boundaries 
 #gmt psxy -J -R platesdata.txt -W2p,black -O -K -t50 -Sf0.25/3p -Gred >> $ps
 
+#-Ablon1/lat1/strike/p_length/dip/p_width/dmin/dmax[f]
 #-Aalon1/lat1/lon2/lat2/dip/p_width/dmin/dmax[f]
-pscoupe mohan_final.txt -P -JX6i/3i -R-150/450/-25/50 -Sa0.5/10/0.03u -B50:Distance:/10:Depth:WSen -Aa86.53717/27.68383/85.33633/27.43/90/100/0/200 -Y-10 -G237/28/36 -E255 -N -V -O >> $ps 
+pscoupe focalmeca.txt -P -JX6i/3i -R-100/200/-25/50 -Sa0.5/10/0.03u -B50:Distance:/10:Depth:WSen -Aa84/27.43/84/27.68383/90/0.2/0/50 -Y-10 -G237/28/36 -E255 -N -V -O >> $ps 
 
 #84/87.6
 east=87.6
@@ -76,12 +83,11 @@ dmax=50
 proj=-JX15/-5
 tick=-B1:Longitude:/10:Depth:WSen
 
-
 #gmt psxy topocross.tmp -i11,2 -R$west/$east/$dmin/$dmax $proj $tick -W1 -Sc.2 -G200 -O -Y-8 -P >> $ps
 #awk '{print($12,$3)}' topocross.tmp | psxy -R$west/$east/$dmin/$dmax $proj $tick -W1 -Sc.2 -G200 -O -Y-8 -P >> $ps
 
 # Cross Section
-#gmt psxy boxdim -R$brange -J$bprojection -B$btick -W1 -P -O -K -Y-9 >> $ps
+#gmt psxy  -R -J -B$btick -W1 -P -O -K -Y-9 >> $ps
 #awk '{print $4, $3*(-1.0)}' LV_seismicity.tmp | psxy -J$bprojection -R$brange -P -Sc0.15 -G0/0/0 -O -V >> $ps
 
 # Convert to PDF
