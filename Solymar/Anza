@@ -1,0 +1,20 @@
+#!/bin/csh
+ps="anzatopo.ps"
+r="-116.65/-116.5/33.5/33.55"
+
+# Base map
+gmt pscoast -R$r -JM6i -P -Y3i -S0/40/80 -Ggrey -Na,thick -Ba1/a1:."Anza": -K -Slightblue> $ps
+
+# Cut grid to selected area
+#gmt grdcut /Volumes/BEBESHITO/topography/topo30.grd -R$r -Ganza_topo.grd
+
+# Make Color Palette Table
+gmt grd2cpt topoanza.grd -Crelief -E -Qi > anza_cpt.cpt
+
+# Crate shade ps (gradient)
+gmt grdgradient topoanza.grd -A0 -fg -Nt -Ganza_shade.grd 
+
+# Add topography layer 
+gmt grdimage topoanza.grd -R -J -Canza_cpt.cpt -Ianza_shade.grd -K -O >> $ps
+
+open $ps

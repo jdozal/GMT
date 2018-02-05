@@ -1,0 +1,11 @@
+#!/bin/csh
+ps="testUTM.ps"
+r="-97.59/-97.565/21.315/21.34"
+
+# Overlay geographic data and coregister by using correct region and gmt projection with the same scale
+gmt pscoast -R$r -Ju5Q/1:160 -K -Df -Slightblue -W0.5p -B5mg5m -BNE > $ps
+
+# Annotate in km but append ,000m to annotations to get customized meter labels
+gmt psbasemap -R$r -Jx1:160 -B5g5+u"@:8:000m@::" -BWSne -O >> $ps
+
+open $ps
