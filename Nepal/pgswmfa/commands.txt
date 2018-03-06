@@ -1,0 +1,6 @@
+find ./Event_2015_07_02_07_18_24/ > testlist
+sed "/\R.sac$/d" testlist > list
+pgswmfa
+sac
+mv *.g ./g
+mv *.ga ./ga

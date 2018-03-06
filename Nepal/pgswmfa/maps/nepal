@@ -1,0 +1,50 @@
+#!/bin/csh
+
+ps="nepalExample.ps"
+#r="83/88/25/30"
+r="73.7/103.2/16.5/39.03"
+ray="location_ray.txt"
+love="location_love.txt"
+sray="s_ray.txt"
+slove="s_love.txt"
+events="events.txt"
+lray="l_ray.txt"
+llove="l_love.txt"
+
+
+# Cut grid to selected area
+#gmt grdcut /Users/jdozal/Desktop/topography/topo30.grd -R$r -Gnepal_topo.grd
+
+# Make Color Palette Table
+#gmt grd2cpt nepal_topo.grd -Crelief -E -Qi > nepal_cpt.cpt
+
+# Crate shade ps (gradient)
+#gmt grdgradient nepal_topo.grd -A0 -fg -Nt -Gnepal_shade.grd 
+
+# New file for earthquake location and magnitude
+#awk -F"|" '{if(NR>1 && $5) print $4, $3, $5, $11*0.07; else if(!$5) print $4, $3, 0.0, $11*0.07}' events2015.txt > events2015_edit.txt
+
+# Base map
+gmt pscoast -JM6i -Na -Yc -R$r -Ba5/a2 > $ps
+
+# Add topography layer 
+#gmt grdimage nepal_topo.grd -R -J -K -Cnepal_cpt.cpt -Inepal_shade.grd -O >> $ps
+
+# Borders
+#gmt pscoast -R -J -Na,thick -K -O >> $ps
+
+# Locate earthquakes (Line, Fill)
+#gmt psxy -R -J -O -K $events -t20 -Scc -L -Cdepth.cpt >> $ps
+#gmt psxy -R -J -O $events -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $ps
+
+
+# Locate stations
+#gmt psxy -J -R -K $lray -W0.8p,black -O -Gblack >> $ps
+#gmt psxy -R -J -O -K -St1 -Gred -W0.8p,black -i1,0 $sray >> $ps
+#gmt psxy -R -J -O -Sc0.2 -Gblue -i1,0 $ray >> $ps
+#gmt psxy -R -J -O -K quakes_edit.txt -Scc -W0.25,black -G- -t60 -Cdepth.cpt >> $ps
+
+# Convert to PDF
+#gmt psconvert -Tf -FnepalEvents1516 $ps
+#rm *.cpt
+open $ps
